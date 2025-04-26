@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #6db1ff;
+            margin: 0;
+            padding: 20px;
+        }
+        .item {
+            background: #ffffff65;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+        .valido {
+            border: 2px solid green;
+        }
+        .invalido {
+            border: 2px solid red;
+        }
+        h1{
+            text-align: center;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            color: #fff;
+        }
+        form{
+            margin: auto;
+            text-align: center;
+
+
+        }
+        button{
+            margin-top: auto;
+            display: flex;
+            color: rgb(0, 4, 255);
+            background-color: ghostwhite;
+            border: plum;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        input{
+            padding: 10px;
+            border-radius: 5px ;
+            border: red;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+       
+    </style>
+</head>
+<body>
+
+<h1>'Catálogo'</h1>
+
+<form id="formularioItens">
+    <input type="text" id="nomeItem" placeholder="Nome do Item" required>
+    <input type="number" id="precoItem" placeholder="Preço" required>
+    <input type="text" id="descricao" placeholder="Descrição" required>
+    <input type="date" id="DatadeValidade" placeholder="Data de Validade" required>
+    <input type="color" id="cor" placeholder="Cor" required>
+    <button id="principal" type="submit">Adicionar/Atualizar Item</button>
+</form>
+
+<div id="listarItens"></div>
+
+<script>
+    const formulario = document.getElementById('formularioItens');
+    const listarItens = document.getElementById('listarItens');
+    let items = JSON.parse(localStorage.getItem('items')) || [];
+
+    function renderItems() {
+        listarItens.innerHTML = '';
+        items.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'item';
+            div.innerHTML = `
+                <span>${item.name} - R$${item.price}</span>
+                <button onclick="editar(${index})">Editar</button>
+                <button onclick="remover(${index})">Remover</button>
+            `;
+            listarItens.appendChild(div);
+        });
+    }
+
+    function validarInput(input) {
+        if (input.value.trim() === '') {
+            input.classList.add('invalido');
+            input.classList.remove('valido');
+            return false;
+        } else {
+            input.classList.add('valido');
+            input.classList.remove('invalido');
+            return true;
+        }
+    }
+
+    formulario.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('nomeItem');
+        const price = document.getElementById('precoItem');
+        const description = document.getElementById('descricao');
+        const date = document.getElementById('DatadeValidade');
+        const color = document.getElementById('cor');
+
+        if ([name, price, description, date, color].every(validarInput)) {
+            const newItem = {
+                name: name.value,
+                price: parseFloat(price.value),
+                description: description.value,
+                date: date.value,
+                color: color.value
+            };
+            items.push(newItem);
+            localStorage.setItem('items', JSON.stringify(items));
+            renderItems();
+            formulario.reset();
+        }
+    });
+
+    function editar(index) {
+        const item = items[index];
+        document.getElementById('nomeItem').value = item.name;
+        document.getElementById('precoItem').value = item.price;
+        document.getElementById('descricao').value = item.description;
+        document.getElementById('DatadeValidade').value = item.date;
+        document.getElementById('cor').value = item.color;
+        removeItem(index);
+    }
+
+    function remover(index) {
+        items.splice(index, 1);
+        localStorage.setItem('items', JSON.stringify(items));
+        renderItems();
+    }
+
+    renderItems();
+</script>
+
+</body>
+</html>
